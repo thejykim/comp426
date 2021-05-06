@@ -1,13 +1,67 @@
+@import url("https://fonts.googleapis.com/css2?family=Rubik&display=swap");
+
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    font-family: "Rubik", sans-serif !important;
+    margin-bottom: 3rem;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+.game {
+    margin-top: 3rem;
+}
+
+.action-tabs {
+    background-color: red;
+}
+
+.tab-container {
+    margin-top: 2rem;
+    max-width: 35rem;
+}
+
+.stock-card {
+    margin-top: 1rem;
+    border-radius: 14px !important;
+    position: relative;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    -webkit-transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+    transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.stock-card::after {
+    content: "";
+    border-radius: 5px;
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    -webkit-transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+    transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.stock-card:hover {
+    -webkit-transform: scale(1.01, 1.02);
+    transform: scale(1.01, 1.02);
+}
+
+.stock-card:hover::after {
+    opacity: 1;
+}
+
+.very-bullish {
+    -webkit-box-shadow: 0px 0px 5px 0px rgba(255, 0, 0, 0.8);
+    -moz-box-shadow: 0px 0px 5px 0px rgba(255, 0, 0, 0.8);
+    box-shadow: 0px 0px 5px 0px rgba(255, 0, 0, 0.8);
+}
+
+.very-bearish {
+    -webkit-box-shadow: 0px 0px 5px 0px rgba(0, 81, 255, 0.8);
+    -moz-box-shadow: 0px 0px 5px 0px rgba(0, 81, 255, 0.8);
+    box-shadow: 0px 0px 5px 0px rgba(0, 81, 255, 0.8);
 }
