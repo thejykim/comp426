@@ -23,3 +23,7 @@ export function login(provider) {
 export function logout() {
     return firebase.auth().signOut();
 }
+
+export function getUser(listener) {
+    return firebase.auth().onAuthStateChanged(listener);
+}

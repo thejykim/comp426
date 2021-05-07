@@ -3,6 +3,7 @@ import axios from 'axios';
 
 import { Button, Container } from 'react-bootstrap';
 import FadeIn from 'react-fade-in';
+import dayjs from 'dayjs';
 
 const incomeData = require('../data/income');
 
@@ -72,22 +73,27 @@ export default class Intro extends React.Component {
         return (
             <Container className="game">
                 <FadeIn visible={this.state.stage === 0} onComplete={() => this.state.isFading ? this.toggleTransition() : null}>
-                    <p>This game simulates a rags-to-riches story based on your region's economic status.</p>
-                    <p>Wealthier regions will find it harder to gain initial traction, but offer greater vertical mobility once higher up in the economic hierarchy.</p>
+                    <p>You're a hard working middle class employee that's recently been laid off because of factors beyond your control.</p>
+                    <p>It's enough to make anyone sick. You decide that the corporate life isn't for you.</p>
                     <Button onClick={this.toggleTransition}>Next</Button>
                 </FadeIn>
 
                 <FadeIn visible={this.state.stage === 1} onComplete={() => this.state.isFading ? this.toggleTransition() : null}>
-                    <p>To depict accurate regional data, we'll compare median yearly household income in your county against the totality of the United States.</p>
+                    <p>Thankfully, you've managed to save about a year's worth of salary until now.</p>
+                    <p>You've heard the stories of people trading for a living. Surely you're smart enough to do it too?</p>
+                    <Button onClick={this.toggleTransition}>Next</Button>
+                </FadeIn>
+
+                <FadeIn visible={this.state.stage === 2} onComplete={() => this.state.isFading ? this.toggleTransition() : null}>
+                    <p>To depict accurate regional data, we'll use median yearly household income in your county.</p>
+                    <p>That's how much you'll be starting with, and your goal is to make that figure in profits in a year and achieve financial freedom.</p>
                     <p>Click the button below to be prompted for your location.</p>
                     <Button onClick={this.getPosition}>Prompt</Button>
                 </FadeIn>
 
-                <FadeIn visible={this.state.stage === 2} onComplete={() => this.state.isFading ? this.startGame() : null}>
+                <FadeIn visible={this.state.stage === 3} onComplete={() => this.state.isFading ? this.startGame() : null}>
                     <p>You're all set! Welcome from {this.state.fips.countyName + ", " + this.state.fips.stateCode}.</p>
-                    <p>With a household median of <strong>${this.state.regionMedian}</strong>, you can expect to be starting in a {this.state.multiplier > 0.85 && this.state.multiplier < 1.15 ? 'generally balanced community.' : (
-                        this.state.multiplier < 1 ? 'less wealthy district.' : 'wealthier district.'
-                    )} (The national median is <strong>${incomeData['USAVG']}</strong>.)</p>
+                    <p>Your starting balance will be <strong>${this.state.regionMedian}</strong>. Remember, this is what you'll need to make by {dayjs().add(1, 'year').format('MMMM D, YYYY')}.</p>
                     <p>Good luck!</p>
                     <Button onClick={this.toggleTransition}>Start</Button>
                 </FadeIn>

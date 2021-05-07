@@ -1,6 +1,6 @@
 import React from 'react';
-import { Badge, Button, Container, Navbar } from 'react-bootstrap'
-import { login, logout } from '../services/auth';
+import { Button, Container, Navbar } from 'react-bootstrap'
+import { login, logout, getUser } from '../services/auth';
 
 export default class AppNavbar extends React.Component {
     constructor() {
@@ -13,12 +13,16 @@ export default class AppNavbar extends React.Component {
         this.handleLogin = this.handleLogin.bind(this);
     }
 
-    handleLogin() {
-        login('google').then(res => {
+    componentDidMount() {
+        getUser(user => {
             this.setState({
-                user: res.user
+                user: user
             });
         });
+    }
+
+    handleLogin() {
+        login('google');
     }
 
     handleLogout() {
@@ -28,7 +32,7 @@ export default class AppNavbar extends React.Component {
     render() {
         return <Navbar expand="lg" variant="light" bg="light">
             <Container>
-                <Navbar.Brand>Cost of Living</Navbar.Brand>
+                <Navbar.Brand>Financial Freedom</Navbar.Brand>
                 <Navbar.Collapse className="justify-content-end">
                     {this.state.user ?
                         <Navbar.Text>
