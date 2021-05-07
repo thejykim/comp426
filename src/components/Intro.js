@@ -45,10 +45,17 @@ export default class Intro extends React.Component {
                 });
 
                 axios.get(`https://api.census.gov/data/timeseries/poverty/saipe?get=SAEMHI_PT,NAME&for=county:${this.state.fips.county}&in=state:${this.state.fips.state}&time=2019`).then(res => {
-                    this.setState({
-                        regionMedian: parseInt(res.data[1][0]),
-                        multiplier: parseInt(res.data[1][0]) / incomeData['USAVG']
-                    });
+                    if (res.status === 200) {
+                        this.setState({
+                            regionMedian: parseInt(res.data[1][0]),
+                            multiplier: parseInt(res.data[1][0]) / incomeData['USAVG']
+                        });
+                    } else {
+                        this.setState({
+                            regionMedian: incomeData['USAVG'],
+                            multiplier: null
+                        });
+                    }
 
                     this.toggleTransition();
                 });
@@ -93,7 +100,7 @@ export default class Intro extends React.Component {
 
                 <FadeIn visible={this.state.stage === 3} onComplete={() => this.state.isFading ? this.startGame() : null}>
                     <p>You're all set! Welcome from {this.state.fips.countyName + ", " + this.state.fips.stateCode}.</p>
-                    <p>Your starting balance will be <strong>${this.state.regionMedian}</strong>. Remember, this is what you'll need to make by {dayjs().add(1, 'year').format('MMMM D, YYYY')}.</p>
+                    <p>Your starting balance will be <mark>${this.state.regionMedian ? this.state.regionMedian.toLocaleString() : this.state.regionMedian}</mark>. Remember, this is what you'll need to make by {dayjs().add(1, 'year').format('MMMM D, YYYY')}.</p>
                     <p>Good luck!</p>
                     <Button onClick={this.toggleTransition}>Start</Button>
                 </FadeIn>

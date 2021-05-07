@@ -5,6 +5,7 @@ import Intro from './Intro';
 import StockCard from './StockCard';
 import dayjs from 'dayjs';
 import NewsCard from './NewsCard';
+import FadeIn from 'react-fade-in';
 
 const tradeAmts = [1, 10, 100, 'max'];
 
@@ -19,7 +20,7 @@ const trendMult = [-0.2, -0.1, 0, 0.2, 0.3];
 const trendDesc = ['Very Bearish', 'Bearish', 'Stable', 'Bullish', 'Very Bullish'];
 const trendTexts = require('../data/news');
 
-const speed = 3000; // ms
+let speed = 3000; // ms
 
 export default class Game extends React.Component {
     constructor(props) {
@@ -34,6 +35,8 @@ export default class Game extends React.Component {
             },
             regionMedian: null,
             goal: null,
+            gameOver: false,
+            gameWon: false,
             startDate: dayjs(),
             multiplier: 1,
             isIntro: true,
@@ -108,7 +111,10 @@ export default class Game extends React.Component {
                     net: 10000,
                     total: 10000
                 }
-            ]
+            ],
+            isFading: false,
+            endStage: 0,
+            cheatMode: false
         }
 
         this.updateState = this.updateState.bind(this);
@@ -116,6 +122,8 @@ export default class Game extends React.Component {
         this.toggleTradeAmt = this.toggleTradeAmt.bind(this);
         this.tick = this.tick.bind(this);
         this.trade = this.trade.bind(this);
+        this.toggleTransition = this.toggleTransition.bind(this);
+        this.toggleCheats = this.toggleCheats.bind(this);
     }
 
     updateState(state) {
@@ -133,7 +141,15 @@ export default class Game extends React.Component {
                     net: state.regionMedian,
                     total: state.regionMedian
                 }
-            ]
+            ],
+            isFading: false
+        });
+    }
+
+    toggleTransition() {
+        this.setState({
+            isFading: !this.state.isFading,
+            endStage: this.state.endStage + 0.5
         });
     }
 
@@ -141,7 +157,9 @@ export default class Game extends React.Component {
         this.setState({
             tutorial: false,
             running: true
-        }, this.tick);
+        }, () => {
+            setTimeout(this.tick, speed);
+        });
     }
 
     toggleGame() {
@@ -154,8 +172,15 @@ export default class Game extends React.Component {
         }
     }
 
+    toggleCheats() {
+        speed = 20;
+        this.setState({
+            cheatMode: true
+        });
+    }
+
     tick() {
-        if (!this.state.running) {
+        if (!this.state.running || this.state.gameOver) {
             this.setState({
                 midtick: false
             });
@@ -306,7 +331,7 @@ export default class Game extends React.Component {
                 {
                     stock: name.toUpperCase(),
                     text: (buy ? 'Bought ' : 'Sold ') + quantity + ' ' + name.toUpperCase() + ' @ ' + this.roundToTwo(copy.price),
-                    date: dayjs(),
+                    date: this.state.time.clone(),
                     net: (buy ? -1 : 1) * this.roundToTwo(copy.price * quantity),
                     total: this.getNetWorth(balance)
                 },
@@ -338,124 +363,186 @@ export default class Game extends React.Component {
     }
 
     render() {
-        if (this.state.isIntro) {
-            return <Intro update={this.updateState} />;
-        } else {
+        if (this.state.gameOver) {
             return (
-                <div>
-                    <Container className="game">
-                        {this.state.tutorial ?
-                            <Alert variant="primary">
-                                <p>Take a moment to click through the tabs below and make sure you understand how everything works. You're free to make some test
-                                trades if you'd like.</p>
-                                <p>The game operates based on ticks, which happen every three 3 seconds. Each tick is half a trading day.</p>
-                                <p>Once you're settled in, click the button below to start everything going. Good luck!</p>
-                                <Button variant="light" onClick={this.startGame}>Start</Button>
-                            </Alert> : null
-                        }
-                        <Jumbotron>
-                            <Row className="d-flex align-items-center">
-                                <Col>
-                                    <h1 className="display-4 bebas">
-                                        {this.state.time.format('MMMM D, YYYY')} {' '}
-                                        <small className="text-muted">{this.state.time.format('h A')}</small>
-                                    </h1>
-                                    <p>The clock's ticking. Double your valuation to <mark>${this.state.goal.toLocaleString()}</mark> by {this.state.startDate.add(1, 'year').format('MMMM D, YYYY')}!</p>
+                <Container className="game">
+                    {this.state.gameWon ?
+                        <FadeIn visible={this.state.endStage === 0} onComplete={() => this.state.isFading ? this.toggleTransition() : null}>
+                            <p>Congratulations! You made a year's worth of salary all from the market.</p>
+                            <p>You're feeling pretty good about yourself. Next year's profits should come even quicker now that you've gotten the hang of it.</p>
+                            <Button onClick={this.toggleTransition}>Next</Button>
+                        </FadeIn>
+                        :
+                        <FadeIn visible={this.state.endStage === 0} onComplete={() => this.state.isFading ? this.toggleTransition() : null}>
+                            <p>You didn't make it in time. The market proved to be too difficult to figure out.</p>
+                            <p>It's not the end of the world, though. You pick yourself back up, get a new job, a new career.</p>
+                            <Button onClick={this.toggleTransition}>Next</Button>
+                        </FadeIn>
+                    }
 
-                                </Col>
+                    {this.state.gameWon ?
+                        <FadeIn visible={this.state.endStage === 1} onComplete={() => this.state.isFading ? this.toggleTransition() : null}>
+                            <p>...boy, were you wrong.</p>
+                            <p>Turns out you had been a bullish market. The next three years bring on the worst economic years America's ever seen.</p>
+                            <p>You lose all your money, and then some. Loans you take out get bigger and bigger, until the bank shuts you out. Broken, humuliated, broke.</p>
+                            <Button onClick={this.toggleTransition}>Next</Button>
+                        </FadeIn>
+                        :
+                        <FadeIn visible={this.state.endStage === 1} onComplete={() => this.state.isFading ? this.toggleTransition() : null}>
+                            <p>And when the economy crashes and a recession takes place for the next three years, you laugh from your lambo and pity the fools who tried to play the game.</p>
+                            <p>You buy the dip. And 10 years later, you sell to join the billionaire club.</p>
+                            <Button onClick={this.toggleTransition}>Next</Button>
+                        </FadeIn>
+                    }
 
-                                <Col>
-                                    <Row>
-                                        <Col>
-                                            <h1 className="bebas">Net Worth</h1>
-                                            <h1 className="display-4 bebas">${this.roundToTwo(this.state.netWorth).toLocaleString()}</h1>
-                                        </Col>
-
-                                        <Col>
-                                            <h1 className="bebas">Bank</h1>
-                                            <h1 className="display-4 bebas">${this.roundToTwo(this.state.money).toLocaleString()}</h1>
-                                        </Col>
-                                    </Row>
-                                </Col>
-                            </Row>
-                        </Jumbotron>
-
-                        <Tabs className="d-flex justify-content-center" defaultActiveKey="stocks" onSelect={(eventKey) => {
-                            if (eventKey === 'news') {
-                                this.clearNewsAlerts();
-                            } else {
-                                this.setState({
-                                    viewingNews: false
-                                });
-                            }
-                        }}>
-                            <Tab eventKey="news" title={
-                                <span>News {this.state.newsAlerts > 0 ? <span>{' '}<Badge variant="danger">{this.state.newsAlerts}</Badge></span> : null}</span>
-                            }>
-                                <Container className="tab-container">
-                                    {this.state.news.sort((a, b) => {
-                                        return b.date.valueOf() - a.date.valueOf();
-                                    }).map((news, index) => {
-                                        return <NewsCard {...news} key={'news-' + index} />
-                                    })}
-                                </Container>
-                            </Tab>
-                            <Tab eventKey="stocks" title="Stocks">
-                                <Container className="tab-container">
-                                    <Button onClick={this.toggleTradeAmt}>Trade {this.state.tradeAmt}</Button>
-
-                                    {this.state.stocks.map((stock, index) => {
-                                        return <StockCard {...stock}
-                                            priceListeners={this.state.priceListeners}
-                                            canTrade={(buy) => this.canTrade(stock.name, buy)}
-                                            trade={(buy) => this.trade(stock.name, buy)}
-                                            key={'stock-' + index}
-                                        />
-                                    })}
-                                </Container>
-                            </Tab>
-                            <Tab eventKey="finances" title="Finances">
-                                <Container className="tab-container">
-                                    <Table striped bordered hover size="sm">
-                                        <thead>
-                                            <tr>
-                                                <th>
-                                                    Stock
-                                                </th>
-                                                <th>
-                                                    Description
-                                                </th>
-                                                <th>
-                                                    Executed
-                                                </th>
-                                                <th>
-                                                    Net
-                                                </th>
-                                                <th>
-                                                    Total funds
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {this.state.tradeHistory.map((trade) => {
-                                                return (
-                                                    <tr key={trade.date.valueOf()}>
-                                                        <td>{trade.stock}</td>
-                                                        <td>{trade.text}</td>
-                                                        <td>{trade.date.format('MMMM D, YYYY')}</td>
-                                                        <td>{trade.net.toLocaleString()}</td>
-                                                        <td>{trade.total.toLocaleString()}</td>
-                                                    </tr>
-                                                )
-                                            })}
-                                        </tbody>
-                                    </Table>
-                                </Container>
-                            </Tab>
-                        </Tabs>
-                    </Container>
-                </div>
+                    {this.state.gameWon ?
+                        <FadeIn visible={this.state.endStage === 2} onComplete={() => this.state.isFading ? this.toggleTransition() : null}>
+                            <p>Hope you had fun, loser.</p>
+                        </FadeIn>
+                        :
+                        <FadeIn visible={this.state.endStage === 2} onComplete={() => this.state.isFading ? this.toggleTransition() : null}>
+                            <p>Hope you had fun playing the real game.</p>
+                        </FadeIn>
+                    }
+                </Container>
             )
+        } else {
+            if (this.state.isIntro) {
+                return <Intro update={this.updateState} />;
+            } else {
+                return (
+                    <FadeIn visible={!this.state.isIntro && this.state.goal > this.state.money && this.state.startDate.add(1, 'year').valueOf() >= this.state.time.valueOf()} onComplete={() => {
+                        if (!(this.state.goal > this.state.money)) {
+                            this.setState({
+                                gameOver: true,
+                                gameWon: true
+                            });
+                        } else if (this.state.startDate.add(1, 'year').valueOf() <= this.state.time.valueOf()) {
+                            this.setState({
+                                gameOver: true,
+                                gameWon: false
+                            });
+                        }
+                    }}>
+                        <Container className="game">
+                            {this.state.tutorial ?
+                                <Alert variant="primary">
+                                    <p>Take a moment to click through the tabs below and make sure you understand how everything works. You're free to make some test
+                                    trades if you'd like.</p>
+                                    <p>The game operates based on ticks, which happen every three 3 seconds. Each tick is half a trading day.</p>
+                                    <p>Once you're settled in, click the button below to start everything going. Good luck!</p>
+                                    <Button variant="light" onClick={this.startGame}>Start</Button>
+                                </Alert> : null
+                            }
+                            <Jumbotron>
+                                <Row className="d-flex align-items-center">
+                                    <Col>
+                                        <h1 className="display-4 bebas">
+                                            {this.state.time.format('MMMM D, YYYY')} {' '}
+                                            <small className="text-muted">{this.state.time.format('h A')}</small>
+                                        </h1>
+                                        <p>The clock's ticking. Double your valuation to <mark>${this.state.goal.toLocaleString()}</mark> by {this.state.startDate.add(1, 'year').format('MMMM D, YYYY')}!</p>
+                                        <Button onClick={this.toggleCheats}>Enable cheats</Button> {' '}
+                                        { this.state.cheatMode ? <Button onClick={() => {
+                                            this.setState({
+                                                money: this.state.money + 10000
+                                            });
+                                        }} variant="success">Add money (OMG)</Button> : null }
+                                    </Col>
+
+                                    <Col>
+                                        <Row>
+                                            <Col>
+                                                <h1 className="bebas">Net Worth</h1>
+                                                <h1 className="display-4 bebas">${this.roundToTwo(this.state.netWorth).toLocaleString()}</h1>
+                                            </Col>
+
+                                            <Col>
+                                                <h1 className="bebas">Bank</h1>
+                                                <h1 className="display-4 bebas">${this.roundToTwo(this.state.money).toLocaleString()}</h1>
+                                            </Col>
+                                        </Row>
+                                    </Col>
+                                </Row>
+                            </Jumbotron>
+
+                            <Tabs className="d-flex justify-content-center" defaultActiveKey="stocks" onSelect={(eventKey) => {
+                                if (eventKey === 'news') {
+                                    this.clearNewsAlerts();
+                                } else {
+                                    this.setState({
+                                        viewingNews: false
+                                    });
+                                }
+                            }}>
+                                <Tab eventKey="news" title={
+                                    <span>News {this.state.newsAlerts > 0 ? <span>{' '}<Badge variant="danger">{this.state.newsAlerts}</Badge></span> : null}</span>
+                                }>
+                                    <Container className="tab-container">
+                                        {this.state.news.sort((a, b) => {
+                                            return b.date.valueOf() - a.date.valueOf();
+                                        }).map((news, index) => {
+                                            return <NewsCard {...news} key={'news-' + index} />
+                                        })}
+                                    </Container>
+                                </Tab>
+                                <Tab eventKey="stocks" title="Stocks">
+                                    <Container className="tab-container">
+                                        <Button onClick={this.toggleTradeAmt}>Trade {this.state.tradeAmt}</Button>
+
+                                        {this.state.stocks.map((stock, index) => {
+                                            return <StockCard {...stock}
+                                                priceListeners={this.state.priceListeners}
+                                                canTrade={(buy) => this.canTrade(stock.name, buy)}
+                                                trade={(buy) => this.trade(stock.name, buy)}
+                                                key={'stock-' + index}
+                                            />
+                                        })}
+                                    </Container>
+                                </Tab>
+                                <Tab eventKey="finances" title="Finances">
+                                    <Container className="tab-container">
+                                        <Table striped bordered hover size="sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>
+                                                        Stock
+                                                    </th>
+                                                    <th>
+                                                        Description
+                                                    </th>
+                                                    <th>
+                                                        Executed
+                                                    </th>
+                                                    <th>
+                                                        Net
+                                                    </th>
+                                                    <th>
+                                                        Total funds
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {this.state.tradeHistory.map((trade) => {
+                                                    return (
+                                                        <tr key={trade.date.valueOf()}>
+                                                            <td>{trade.stock}</td>
+                                                            <td>{trade.text}</td>
+                                                            <td>{trade.date.format('MMMM D, YYYY')}</td>
+                                                            <td>{trade.net.toLocaleString()}</td>
+                                                            <td>{trade.total.toLocaleString()}</td>
+                                                        </tr>
+                                                    )
+                                                })}
+                                            </tbody>
+                                        </Table>
+                                    </Container>
+                                </Tab>
+                            </Tabs>
+                        </Container>
+                    </FadeIn>
+                )
+            }
         }
     }
 }
