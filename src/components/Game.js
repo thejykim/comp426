@@ -173,7 +173,6 @@ export default class Game extends React.Component {
     }
 
     toggleCheats() {
-        speed = 20;
         this.setState({
             cheatMode: true
         });
@@ -411,8 +410,8 @@ export default class Game extends React.Component {
                 return <Intro update={this.updateState} />;
             } else {
                 return (
-                    <FadeIn visible={!this.state.isIntro && this.state.goal > this.state.money && this.state.startDate.add(1, 'year').valueOf() >= this.state.time.valueOf()} onComplete={() => {
-                        if (!(this.state.goal > this.state.money)) {
+                    <FadeIn visible={!this.state.isIntro && this.state.goal > this.state.netWorth && this.state.startDate.add(1, 'year').valueOf() >= this.state.time.valueOf()} onComplete={() => {
+                        if (!(this.state.goal > this.state.netWorth)) {
                             this.setState({
                                 gameOver: true,
                                 gameWon: true
@@ -429,7 +428,7 @@ export default class Game extends React.Component {
                                 <Alert variant="primary">
                                     <p>Take a moment to click through the tabs below and make sure you understand how everything works. You're free to make some test
                                     trades if you'd like.</p>
-                                    <p>The game operates based on ticks, which happen every three 3 seconds. Each tick is half a trading day.</p>
+                                    <p>The game operates based on ticks, which happen every 3 seconds. Each tick is half a trading day.</p>
                                     <p>Once you're settled in, click the button below to start everything going. Good luck!</p>
                                     <Button variant="light" onClick={this.startGame}>Start</Button>
                                 </Alert> : null
@@ -443,11 +442,11 @@ export default class Game extends React.Component {
                                         </h1>
                                         <p>The clock's ticking. Double your valuation to <mark>${this.state.goal.toLocaleString()}</mark> by {this.state.startDate.add(1, 'year').format('MMMM D, YYYY')}!</p>
                                         <Button onClick={this.toggleCheats}>Enable cheats</Button> {' '}
-                                        { this.state.cheatMode ? <Button onClick={() => {
+                                        {this.state.cheatMode ? <Button onClick={() => {
                                             this.setState({
                                                 money: this.state.money + 10000
                                             });
-                                        }} variant="success">Add money (OMG)</Button> : null }
+                                        }} variant="success">Add money (OMG)</Button> : null}
                                     </Col>
 
                                     <Col>
