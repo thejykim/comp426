@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Container, Navbar } from 'react-bootstrap'
+import { Container, Navbar } from 'react-bootstrap'
 import { login, logout, getUser } from '../services/auth';
 
 export default class AppNavbar extends React.Component {
@@ -37,12 +37,12 @@ export default class AppNavbar extends React.Component {
                     {this.state.user ?
                         <Navbar.Text>
                             Signed in as {this.state.user.displayName.split(' ')[0]}. {' '}
-                            <Button variant="outline-primary" size="sm" onClick={this.handleLogout}>Sign out</Button>
+                            <span className="navbar-click" onClick={this.handleLogout}>Sign out</span>
                         </Navbar.Text>
                         :
                         <Navbar.Text>
                             Not signed in. {' '}
-                            <Button variant="outline-primary" size="sm" onClick={this.handleLogin}>Sign in</Button>
+                            <span className="navbar-click" onClick={this.handleLogin}>Sign in</span>
                         </Navbar.Text>
                     }
                 </Navbar.Collapse>

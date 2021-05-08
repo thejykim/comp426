@@ -2,16 +2,16 @@ module.exports = [
     [
         `Several board members quit yesterday due to 'shady business practices' by the CFO. What this means for the company is still unclear, but any positive outlook is doubtful.`,
         `Previously building loans seems to have culminated in a corporate buyout. This will include intense layoffs and the replacement of formerly incompetent executives.`,
-        `Warren Buffet lowered his stock target to SELL after trading hours yesterday, making him the fifth major investment firm to do so. The reason isn't quite clear yet, but any investors seeking to enter positions now should reconsider.`,
+        `Warren Buffet lowered his stock target to SELL after trading hours yesterday, making him the fifth major investment firm to do so. The reason isn't clear yet but any investors seeking to enter positions now should reconsider.`,
         `Despite already low earnings expectations, yesterday's earnings call somehow still managed to disappoint investors. Expect major pullouts over the next several trading days.`,
         `We've received reports of the CEO stepping down due to immense pressure from board members. This could bode well for the company in the long term, but short term outlook seems to have taken a turn for the worse.`
     ],
     [
-        `We've received reports of a potential whistleblower. Although nothing is confirmed, the atmosphere is uncertain. Caution is advised, especially if the issue is substantial.`,
+        `We've received reports of a potential whistleblower. Although nothing is confirmed, caution is advised.`,
         `Sources say that the company has taken a second multi-million dollar loan. In light of the slightly disappointing earnings call, this puts the company at a high-risk position.`,
         `Citadel and Morningstar lowered their targets significantly this morning. Uncertain for now, check back soon for more.`,
         `The aftermath of an embarrassing press conference will most likely not be good.`,
-        `A Twitter feud between company CEO and @PM_ME_FEET_PICS ended in the deletion of the CEO's Twitter. Yikes.`
+        `Twitter user @noobmaster69's roast of the company CEO ended in the deletion of the CEO's Twitter last night. Yikes.`
     ],
     [
         `Last night's earnings call met expectations. Investors are left with mixed opinions for the future.`,
@@ -25,7 +25,7 @@ module.exports = [
         `The acquisition of a close competitor bodes well for the company's near future. We expect to see moderate gains as long as this aggressive growth strategy is continued.`,
     ],
     [
-        `Elon Musk unexpectedly mentioned this ticker last night in a cryptic tweet. Although his reason is unclear, the hype train is already in full force.`,
+        `Elon Musk unexpectedly mentioned this ticker last night in a cryptic tweet.`,
         `Seven price recommendations were doubled last night after the company blew earnings expectations out of the water, even after competitors posted huge losses in the same quarter. They're clearly doing something right.`
     ]
 ]

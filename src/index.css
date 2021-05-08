@@ -6,6 +6,11 @@ body {
     margin-bottom: 3rem;
 }
 
+.navbar-click {
+    color: black;
+    cursor: pointer;
+}
+
 .game {
     margin-top: 3rem;
 }
@@ -23,7 +28,6 @@ body {
     margin-top: 1rem;
     border-radius: 14px !important;
     position: relative;
-    background-color: #fff;
     border-radius: 5px;
     border-radius: 5px;
     -webkit-transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);

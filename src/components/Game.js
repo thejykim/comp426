@@ -1,11 +1,13 @@
 import React from 'react';
 
 import { Alert, Badge, Button, Container, Jumbotron, Row, Col, Table, Tabs, Tab } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons';
+import FadeIn from 'react-fade-in';
 import Intro from './Intro';
 import StockCard from './StockCard';
 import dayjs from 'dayjs';
 import NewsCard from './NewsCard';
-import FadeIn from 'react-fade-in';
 
 const tradeAmts = [1, 10, 100, 'max'];
 
@@ -45,23 +47,10 @@ export default class Game extends React.Component {
             midtick: false,
             money: 10000,
             netWorth: 10000,
+            prevNetWorth: 10000,
             tradeAmt: 1,
             time: dayjs().hour(10),
             stocks: [
-                {
-                    name: 'amc',
-                    price: 98,
-                    prev: null,
-                    trending: 2,
-                    position: 0
-                },
-                {
-                    name: 'gme',
-                    price: 188,
-                    prev: null,
-                    trending: 3,
-                    position: 0
-                },
                 {
                     name: 'msft',
                     price: 348,
@@ -73,12 +62,26 @@ export default class Game extends React.Component {
                     name: 'goog',
                     price: 2857,
                     prev: null,
-                    trending: 2,
+                    trending: 3,
                     position: 0
                 },
                 {
                     name: 'amzn',
                     price: 3817,
+                    prev: null,
+                    trending: 2,
+                    position: 0
+                },
+                {
+                    name: 'gme',
+                    price: 188,
+                    prev: null,
+                    trending: 4,
+                    position: 0
+                },
+                {
+                    name: 'amc',
+                    price: 98,
                     prev: null,
                     trending: 2,
                     position: 0
@@ -94,14 +97,21 @@ export default class Game extends React.Component {
             priceListeners: [],
             news: [
                 {
-                    stock: 'GME',
-                    text: 'Apes unite! GME price soaring',
-                    prev: 'Very bearish',
+                    stock: 'GOOG',
+                    text: `Last night's shareholder meeting went exceedingly well. Several new expansion areas are on the horizon for the company, and tangible growth strategies were laid out for both the short and long term.`,
+                    prev: 'Stable',
                     curr: 'Bullish',
+                    date: dayjs()
+                },
+                {
+                    stock: 'GME',
+                    text: 'GME price soaring',
+                    prev: 'Very bearish',
+                    curr: 'Very Bullish',
                     date: dayjs()
                 }
             ],
-            newsAlerts: 1,
+            newsAlerts: 2,
             viewingNews: false,
             tradeHistory: [
                 {
@@ -132,6 +142,7 @@ export default class Game extends React.Component {
             isIntro: false,
             money: state.regionMedian,
             netWorth: state.regionMedian,
+            prevNetWorth: state.regionMedian,
             goal: state.regionMedian * 2,
             tradeHistory: [
                 {
@@ -173,9 +184,17 @@ export default class Game extends React.Component {
     }
 
     toggleCheats() {
-        this.setState({
-            cheatMode: true
-        });
+        if (speed === 3000) {
+            speed = 30;
+            this.setState({
+                cheatMode: true
+            });
+        } else {
+            speed = 3000;
+            this.setState({
+                cheatMode: false
+            });
+        }
     }
 
     tick() {
@@ -226,7 +245,8 @@ export default class Game extends React.Component {
         this.setState({
             time: this.addTime(),
             stocks: tempStocks,
-            netWorth: this.getNetWorth(this.state.money, tempStocks)
+            netWorth: this.getNetWorth(this.state.money, tempStocks),
+            prevNetWorth: this.state.netWorth
         });
 
         this.state.priceListeners.forEach(obj => {
@@ -323,19 +343,17 @@ export default class Game extends React.Component {
 
         const balance = this.state.money - (buy ? 1 : -1) * copy.price * quantity;
 
+        this.state.tradeHistory.unshift({
+            stock: name.toUpperCase(),
+            text: (buy ? 'Bought ' : 'Sold ') + quantity + ' ' + name.toUpperCase() + ' @ ' + this.roundToTwo(copy.price),
+            date: this.state.time.clone(),
+            net: (buy ? -1 : 1) * this.roundToTwo(copy.price * quantity),
+            total: this.getNetWorth(balance)
+        });
+
         this.setState({
             money: balance,
-            netWorth: this.getNetWorth(balance),
-            tradeHistory: [
-                {
-                    stock: name.toUpperCase(),
-                    text: (buy ? 'Bought ' : 'Sold ') + quantity + ' ' + name.toUpperCase() + ' @ ' + this.roundToTwo(copy.price),
-                    date: this.state.time.clone(),
-                    net: (buy ? -1 : 1) * this.roundToTwo(copy.price * quantity),
-                    total: this.getNetWorth(balance)
-                },
-                ...this.state.tradeHistory
-            ]
+            netWorth: this.getNetWorth(balance)
         });
     }
 
@@ -381,9 +399,9 @@ export default class Game extends React.Component {
 
                     {this.state.gameWon ?
                         <FadeIn visible={this.state.endStage === 1} onComplete={() => this.state.isFading ? this.toggleTransition() : null}>
-                            <p>...boy, were you wrong.</p>
+                            <p>...wrong.</p>
                             <p>Turns out you had been a bullish market. The next three years bring on the worst economic years America's ever seen.</p>
-                            <p>You lose all your money, and then some. Loans you take out get bigger and bigger, until the bank shuts you out. Broken, humuliated, broke.</p>
+                            <p>You lose all your money, and then some. Loans you take out get bigger and bigger until the bank shuts you out. You're humiliated and broke.</p>
                             <Button onClick={this.toggleTransition}>Next</Button>
                         </FadeIn>
                         :
@@ -425,11 +443,11 @@ export default class Game extends React.Component {
                     }}>
                         <Container className="game">
                             {this.state.tutorial ?
-                                <Alert variant="primary">
-                                    <p>Take a moment to click through the tabs below and make sure you understand how everything works. You're free to make some test
-                                    trades if you'd like.</p>
+                                <Alert variant="primary" className="stock-card">
+                                    <p>Take a moment to click through the tabs below and make sure you understand how everything works. Make some test
+                                    trades if you want.</p>
                                     <p>The game operates based on ticks, which happen every 3 seconds. Each tick is half a trading day.</p>
-                                    <p>Once you're settled in, click the button below to start everything going. Good luck!</p>
+                                    <p>Once you're ready, click the button below to start everything going. Good luck!</p>
                                     <Button variant="light" onClick={this.startGame}>Start</Button>
                                 </Alert> : null
                             }
@@ -441,19 +459,35 @@ export default class Game extends React.Component {
                                             <small className="text-muted">{this.state.time.format('h A')}</small>
                                         </h1>
                                         <p>The clock's ticking. Double your valuation to <mark>${this.state.goal.toLocaleString()}</mark> by {this.state.startDate.add(1, 'year').format('MMMM D, YYYY')}!</p>
-                                        <Button onClick={this.toggleCheats}>Enable cheats</Button> {' '}
+                                        <Button onClick={this.toggleCheats}>{this.state.cheatMode ? 'Disable' : 'Enable'} cheats</Button> {' '}
                                         {this.state.cheatMode ? <Button onClick={() => {
                                             this.setState({
-                                                money: this.state.money + 10000
+                                                money: this.state.money + 10000,
+                                                netWorth: this.state.netWorth + 10000
                                             });
-                                        }} variant="success">Add money (OMG)</Button> : null}
+                                        }} variant="success">Add money</Button> : null}
                                     </Col>
 
                                     <Col>
                                         <Row>
                                             <Col>
                                                 <h1 className="bebas">Net Worth</h1>
-                                                <h1 className="display-4 bebas">${this.roundToTwo(this.state.netWorth).toLocaleString()}</h1>
+                                                <h1 className="display-4 bebas">
+                                                    ${this.roundToTwo(this.state.netWorth).toLocaleString()} {' '}
+                                                    {
+                                                        this.state.netWorth !== this.state.prevNetWorth ? (
+                                                            this.state.netWorth > this.state.prevNetWorth ? (
+                                                                <span className="h1">
+                                                                    <FontAwesomeIcon icon={faAngleUp} style={{ color: 'rgb(50,205,50)' }} />
+                                                                </span>
+                                                            ) : (
+                                                                <span className="h1">
+                                                                    <FontAwesomeIcon icon={faAngleDown} style={{ color: 'rgb(255,0,0)' }} />
+                                                                </span>
+                                                            )
+                                                        ) : null
+                                                    }
+                                                </h1>
                                             </Col>
 
                                             <Col>
@@ -487,7 +521,9 @@ export default class Game extends React.Component {
                                 </Tab>
                                 <Tab eventKey="stocks" title="Stocks">
                                     <Container className="tab-container">
-                                        <Button onClick={this.toggleTradeAmt}>Trade {this.state.tradeAmt}</Button>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <Button onClick={this.toggleTradeAmt}>Trade {this.state.tradeAmt}</Button>
+                                        </div>
 
                                         {this.state.stocks.map((stock, index) => {
                                             return <StockCard {...stock}
@@ -522,9 +558,9 @@ export default class Game extends React.Component {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {this.state.tradeHistory.map((trade) => {
+                                                {this.state.tradeHistory.map((trade, index) => {
                                                     return (
-                                                        <tr key={trade.date.valueOf()}>
+                                                        <tr key={'trade-' + index}>
                                                             <td>{trade.stock}</td>
                                                             <td>{trade.text}</td>
                                                             <td>{trade.date.format('MMMM D, YYYY')}</td>

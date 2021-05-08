@@ -1,5 +1,7 @@
 import React from 'react';
 import { Button, Card } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons';
 
 export default class StockCard extends React.Component {
     roundToTwo(num) {
@@ -13,13 +15,25 @@ export default class StockCard extends React.Component {
                     <span className="h5">
                         {this.props.name.toUpperCase()} <small className="text-muted">{this.props.position}</small>
                     </span>
-                    <span className="h5" id={this.props.name + "-price"} style={{ color: this.props.prev ? (this.props.price >= this.props.prev ? 'rgb(50,205,50)' : 'rgb(255,0,0)') : 'black' }}>${this.roundToTwo(this.props.price).toLocaleString()}</span>
+                    <span className="h5" id={this.props.name + "-price"}>
+                        ${this.roundToTwo(this.props.price).toLocaleString()} {' '}
+                        {
+                            this.props.prev ? (
+                                this.props.price >= this.props.prev ? (
+                                    <FontAwesomeIcon icon={faAngleUp} style={{ color: 'rgb(50,205,50)' }} />
+                                ) : (
+                                    <FontAwesomeIcon icon={faAngleDown} style={{ color: 'rgb(255,0,0)' }} />
+                                )
+                            ) : null
+                        }
+                    </span>
                 </div>
 
                 {/* onClick={this.props.trade(true)} */}
-
-                <Button variant="success" disabled={!this.props.canTrade(true)} onClick={() => { this.props.trade(true) }}>Buy</Button>{' '}
-                <Button variant="danger" disabled={!this.props.canTrade(false)} onClick={() => { this.props.trade(false) }}>Sell</Button>
+                <div style={{ textAlign: 'right' }}>
+                    <Button variant="success" disabled={!this.props.canTrade(true)} onClick={() => { this.props.trade(true) }}>Buy</Button>{' '}
+                    <Button variant="danger" disabled={!this.props.canTrade(false)} onClick={() => { this.props.trade(false) }}>Sell</Button>
+                </div>
             </Card>
         );
     }
